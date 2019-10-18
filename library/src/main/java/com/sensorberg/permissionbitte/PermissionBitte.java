@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -19,8 +18,8 @@ public class PermissionBitte {
 
   private static final String TAG = "PERMISSION_BITTE";
 
-  private static final MediatorLiveData<PermissionState> mediatorLiveData = new MediatorLiveData<>();
-  public static final LiveData<PermissionState> permissionLiveData = mediatorLiveData;
+  private static final MediatorLiveData<Permission> mediatorLiveData = new MediatorLiveData<>();
+  public static final LiveData<Permission> permissionLiveData = mediatorLiveData;
 
   /**
    * Check if you need to ask for permission.
@@ -42,29 +41,30 @@ public class PermissionBitte {
    * In case you call `ask` without needing any permission, bitteBitte will immediately receive `yesYouCan()`
    *
    * @param activity   "this"
-   * @param bitteBitte Callback, so you know when it's all good.
    */
-  public static void ask(FragmentActivity activity, @Nullable BitteBitte bitteBitte) {
-    if (shouldAsk(activity)) {
-      PermissionBitteFragment permissionBitteFragment = (PermissionBitteFragment) activity
-              .getSupportFragmentManager()
-              .findFragmentByTag(TAG);
-      if (permissionBitteFragment == null) {
-        permissionBitteFragment = new PermissionBitteFragment();
+  public static void ask(FragmentActivity activity) {
+    if (!shouldAsk(activity)) {
+      return;
+    }
 
-        mediatorLiveData.addSource(permissionBitteFragment.liveData, new Observer<PermissionState>() {
-          @Override
-          public void onChanged(PermissionState permissionState) {
-            mediatorLiveData.setValue(permissionState);
-          }
-        });
+    PermissionBitteFragment permissionBitteFragment = (PermissionBitteFragment) activity
+            .getSupportFragmentManager()
+            .findFragmentByTag(TAG);
 
-        activity.getSupportFragmentManager()
-                .beginTransaction()
-                .add(permissionBitteFragment, TAG)
-                .commitNowAllowingStateLoss();
-      }
+    if (permissionBitteFragment == null) {
+      permissionBitteFragment = new PermissionBitteFragment();
 
+      mediatorLiveData.addSource(permissionBitteFragment.liveData, new Observer<Permission>() {
+        @Override
+        public void onChanged(Permission permission) {
+          mediatorLiveData.setValue(permission);
+        }
+      });
+
+      activity.getSupportFragmentManager()
+              .beginTransaction()
+              .add(permissionBitteFragment, TAG)
+              .commitNowAllowingStateLoss();
     }
   }
 

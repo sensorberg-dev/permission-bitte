@@ -4,9 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.sensorberg.permissionbitte.BitteBitte;
-
-public class ArchitectureComponentsViewModel extends ViewModel implements BitteBitte {
+public class ArchitectureComponentsViewModel extends ViewModel {
 
 	private final MutableLiveData<State> state;
 
@@ -16,18 +14,6 @@ public class ArchitectureComponentsViewModel extends ViewModel implements BitteB
 
 	LiveData<State> getState() {
 		return state;
-	}
-
-	@Override public void yesYouCan() {
-		state.setValue(State.PERMISSION_GOOD);
-	}
-
-	@Override public void noYouCant() {
-		state.setValue(State.ON_PERMISSION_DENIED);
-	}
-
-	@Override public void askNicer() {
-		state.setValue(State.SHOW_PERMISSION_RATIONALE);
 	}
 
 	void shouldAskPermission(boolean shouldAsk) {

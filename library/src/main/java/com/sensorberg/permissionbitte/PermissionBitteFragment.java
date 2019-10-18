@@ -21,7 +21,7 @@ public class PermissionBitteFragment extends Fragment {
 
   private static final int BITTE_LET_ME_PERMISSION = 23;
 
-  final MutableLiveData<PermissionState> liveData = new MutableLiveData<>();
+  final MutableLiveData<Permission> liveData = new MutableLiveData<>();
 
   public PermissionBitteFragment() {
     setRetainInstance(true);
@@ -44,20 +44,25 @@ public class PermissionBitteFragment extends Fragment {
   public void onRequestPermissionsResult(int requestCode,
                                          @NonNull String[] permissions,
                                          @NonNull int[] grantResults) {
-    if (requestCode == BITTE_LET_ME_PERMISSION && permissions.length > 0) {
-
-      for (int i = 0; i < permissions.length; i++) {
-        if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-          PermissionState permissionState = new PermissionState(Permission.PERMISSION_DENIED, permissions[i]);
-          liveData.setValue(permissionState);
-        } else {
-          PermissionState permissionState = new PermissionState(Permission.PERMISSION_GRANTED, permissions[i]);
-          liveData.setValue(permissionState);
-        }
-      }
-
-      getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
+    if (requestCode != BITTE_LET_ME_PERMISSION || permissions.length <= 0) {
+      return;
     }
+
+    for (int i = 0; i < permissions.length; i++) {
+      final String permissionName = permissions[i];
+
+      if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+        updateLiveData(permissionName, PermissionResult.PERMISSION_DENIED);
+      } else {
+        updateLiveData(permissionName, PermissionResult.PERMISSION_GRANTED);
+      }
+    }
+
+    getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
+  }
+
+  private void updateLiveData(String permissionName, PermissionResult permissionResult) {
+    liveData.setValue(new Permission(permissionName, permissionResult));
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -68,10 +73,13 @@ public class PermissionBitteFragment extends Fragment {
     try {
       packageInfo = packageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
     } catch (PackageManager.NameNotFoundException e) { /* */ }
+
     List<String> needed = new ArrayList<>();
-    if (packageInfo != null &&
-            packageInfo.requestedPermissions != null &&
-            packageInfo.requestedPermissionsFlags != null) {
+
+    if (packageInfo != null
+            && packageInfo.requestedPermissions != null
+            && packageInfo.requestedPermissionsFlags != null) {
+
       for (int i = 0; i < packageInfo.requestedPermissions.length; i++) {
         int flags = packageInfo.requestedPermissionsFlags[i];
         String group = null;
@@ -85,6 +93,7 @@ public class PermissionBitteFragment extends Fragment {
         }
       }
     }
-    return needed.toArray(new String[needed.size()]);
+
+    return needed.toArray(new String[0]);
   }
 }

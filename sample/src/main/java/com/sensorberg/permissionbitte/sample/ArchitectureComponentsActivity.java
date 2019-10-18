@@ -10,12 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.sensorberg.permissionbitte.PermissionBitte;
-import com.sensorberg.permissionbitte.PermissionState;
+import com.sensorberg.permissionbitte.Permission;
 
 /**
  * Sample showing PermissionBitte with Android Architecture Components
@@ -33,10 +32,10 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
     vm.getState().observe(this, this);
     vm.shouldAskPermission(PermissionBitte.shouldAsk(this));
 
-    PermissionBitte.permissionLiveData.observe(this, new Observer<PermissionState>() {
+    PermissionBitte.permissionLiveData.observe(this, new Observer<Permission>() {
       @Override
-      public void onChanged(PermissionState permissionState) {
-        Log.d(ArchitectureComponentsActivity.class.getSimpleName(), permissionState.permission + " " + permissionState.state);
+      public void onChanged(Permission permission) {
+        // react on the permission state
       }
     });
   }
@@ -57,7 +56,7 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
         findViewById(R.id.button).setVisibility(View.VISIBLE);
         break;
       case ASK_FOR_PERMISSION:
-        PermissionBitte.ask(this, vm);
+        PermissionBitte.ask(this);
         break;
       case SHOW_PERMISSION_RATIONALE:
         new AlertDialog.Builder(this)
