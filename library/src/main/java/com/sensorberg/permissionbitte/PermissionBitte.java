@@ -8,6 +8,9 @@ import android.provider.Settings;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
 
 /**
  * Entry point for easy permission requesting.
@@ -16,23 +19,8 @@ public class PermissionBitte {
 
   private static final String TAG = "PERMISSION_BITTE";
 
-  /**
-   * Register {@link BitteBitte} listener.
-   * Always call this during Activity.onCreate()
-   *
-   * @param activity   "this"
-   * @param bitteBitte Callback, on rotation re-attaches the callback to the implementation
-   */
-  public static void registerCallback(FragmentActivity activity, @Nullable BitteBitte bitteBitte) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      PermissionBitteImpl fragment = (PermissionBitteImpl) activity
-              .getSupportFragmentManager()
-              .findFragmentByTag(TAG);
-      if (fragment != null) {
-        fragment.setBitteBitte(bitteBitte);
-      }
-    }
-  }
+  private static final MediatorLiveData<PermissionState> mediatorLiveData = new MediatorLiveData<>();
+  public static final LiveData<PermissionState> permissionLiveData = mediatorLiveData;
 
   /**
    * Check if you need to ask for permission.
@@ -42,7 +30,7 @@ public class PermissionBitte {
    */
   public static boolean shouldAsk(Context context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      return PermissionBitteImpl.neededPermissions(context).length > 0;
+      return PermissionBitteFragment.neededPermissions(context).length > 0;
     } else {
       return false;
     }
@@ -58,24 +46,25 @@ public class PermissionBitte {
    */
   public static void ask(FragmentActivity activity, @Nullable BitteBitte bitteBitte) {
     if (shouldAsk(activity)) {
-      PermissionBitteImpl bitte = (PermissionBitteImpl) activity
+      PermissionBitteFragment permissionBitteFragment = (PermissionBitteFragment) activity
               .getSupportFragmentManager()
               .findFragmentByTag(TAG);
-      if (bitte == null) {
-        bitte = new PermissionBitteImpl();
-        bitte.setBitteBitte(bitteBitte);
+      if (permissionBitteFragment == null) {
+        permissionBitteFragment = new PermissionBitteFragment();
+
+        mediatorLiveData.addSource(permissionBitteFragment.liveData, new Observer<PermissionState>() {
+          @Override
+          public void onChanged(PermissionState permissionState) {
+            mediatorLiveData.setValue(permissionState);
+          }
+        });
+
         activity.getSupportFragmentManager()
                 .beginTransaction()
-                .add(bitte, TAG)
+                .add(permissionBitteFragment, TAG)
                 .commitNowAllowingStateLoss();
-      } else {
-        bitte.setBitteBitte(bitteBitte);
       }
-      return;
-    }
 
-    if (bitteBitte != null) {
-      bitteBitte.yesYouCan();
     }
   }
 
@@ -90,4 +79,5 @@ public class PermissionBitte {
             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
             Uri.fromParts("package", activity.getPackageName(), null)));
   }
+
 }
