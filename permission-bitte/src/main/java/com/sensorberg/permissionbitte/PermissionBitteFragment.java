@@ -41,6 +41,7 @@ public class PermissionBitteFragment extends Fragment {
   }
 
   LiveData<Permissions> getPermission() {
+    updateData();
     return mutableLiveData;
   }
 
@@ -124,7 +125,11 @@ public class PermissionBitteFragment extends Fragment {
 
       String name = packageInfo.requestedPermissions[i];
       if (((flags & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) && group != null) {
-        permissions.add(new Permission(name, PermissionResult.DENIED));
+        if (shouldShowRequestPermissionRationale(name)) {
+          permissions.add(new Permission(name, PermissionResult.SHOW_RATIONALE));
+        } else {
+          permissions.add(new Permission(name, PermissionResult.DENIED_PLEASE_ASK));
+        }
       } else {
         permissions.add(new Permission(name, PermissionResult.GRANTED));
       }
@@ -133,5 +138,8 @@ public class PermissionBitteFragment extends Fragment {
     return permissions;
   }
 
-  // TODO rename library folder to permission-bitte
+  private void updateData() {
+    List<Permission> permissionList = getPermissionList(getActivity());
+    mutableLiveData.setValue(new Permissions(permissionList));
+  }
 }

@@ -19,6 +19,8 @@ import com.sensorberg.permissionbitte.Permission;
 import com.sensorberg.permissionbitte.PermissionResult;
 import com.sensorberg.permissionbitte.Permissions;
 
+import java.util.List;
+
 /**
  * Sample showing PermissionBitte with Android Architecture Components
  */
@@ -40,18 +42,25 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
       @Override
       public void onChanged(Permissions permissions) {
         // react on the permission state
-        for (Permission permission : permissions.getPermissions(PermissionResult.DENIED, PermissionResult.SHOW_RATIONALE)) {
+        for (Permission permission : permissions.getPermissions()) {
           Log.d(TAG, permission.name + " " + permission.result);
         }
         Log.d(TAG, "--------------------------------------------------------");
 
-        if (permissions.showRationale()) {
+        if (permissions.deniedPermanently()) {
+          List<Permission> deniedPermissionList = permissions.get(PermissionResult.DENIED);
+
+          // check if you really need that permission or if you can live without.
+
+          // In case you can not live without that permission
+          Toast.makeText(ArchitectureComponentsActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
+          finish();
+        } else if (permissions.showRationale()) {
+          // show a dialog explaining why you need that permission
           showRationaleDialog();
         }
       }
     });
-
-    PermissionBitte.ask(this);
   }
 
   @Override

@@ -16,10 +16,6 @@ public class ArchitectureComponentsViewModel extends ViewModel {
 		return state;
 	}
 
-	void shouldAskPermission(boolean shouldAsk) {
-		state.setValue(shouldAsk ? State.SHOW_PERMISSION_BUTTON : State.PERMISSION_GOOD);
-	}
-
 	void userAgreesForPermissionAsking() {
 		state.setValue(State.ASK_FOR_PERMISSION);
 	}
@@ -31,7 +27,6 @@ public class ArchitectureComponentsViewModel extends ViewModel {
 	enum State {
 		SHOW_PERMISSION_BUTTON,
 		ASK_FOR_PERMISSION,
-		SHOW_PERMISSION_RATIONALE,
 		ON_PERMISSION_DENIED,
 		ON_PERMISSION_RATIONALE_DECLINED,
 		PERMISSION_GOOD,
