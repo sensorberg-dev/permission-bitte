@@ -15,21 +15,23 @@ import com.sensorberg.permissionbitte.PermissionBitte;
  */
 public class BasicActivity extends AppCompatActivity {
 
+  private PermissionBitte permissionBitte = new PermissionBitte();
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    if (PermissionBitte.shouldAsk(this)) {
-      findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          PermissionBitte.ask(BasicActivity.this);
-          findViewById(R.id.button).setVisibility(View.GONE);
-        }
-      });
-    } else {
-      findViewById(R.id.button).setVisibility(View.GONE);
-    }
+//    if (permissionBitte.shouldAsk(this)) {
+//      findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//          permissionBitte.ask(BasicActivity.this);
+//          findViewById(R.id.button).setVisibility(View.GONE);
+//        }
+//      });
+//    } else {
+//      findViewById(R.id.button).setVisibility(View.GONE);
+//    }
   }
 }

@@ -8,6 +8,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
@@ -21,7 +22,9 @@ public class PermissionBitteFragment extends Fragment {
 
   private static final int BITTE_LET_ME_PERMISSION = 23;
 
-  final MutableLiveData<Permission> liveData = new MutableLiveData<>();
+  private final MutableLiveData<Permissions> mutableLiveData = new MutableLiveData<>();
+
+  private boolean askForPermission = false;
 
   public PermissionBitteFragment() {
     setRetainInstance(true);
@@ -31,12 +34,37 @@ public class PermissionBitteFragment extends Fragment {
   public void onResume() {
     super.onResume();
 
-    String[] needed = neededPermissions(getActivity());
-    if (needed.length > 0) {
-      requestPermissions(needed, BITTE_LET_ME_PERMISSION);
-    } else {
+    if (askForPermission) {
+      askForPermission = false;
+      ask();
+    }
+  }
+
+  LiveData<Permissions> getPermission() {
+    return mutableLiveData;
+  }
+
+  void ask() {
+    if (!isResumed()) {
+      askForPermission = true;
+      return;
+    }
+
+    List<Permission> allPermissions = getPermissionList(getActivity());
+    if (allPermissions.isEmpty()) {
       // this shouldn't happen, but just to be sure
       getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
+      return;
+    }
+
+    List<String> permissionNames = new ArrayList<>();
+
+    for (Permission permission : allPermissions) {
+      permissionNames.add(permission.name);
+    }
+
+    if (!permissionNames.isEmpty()) {
+      requestPermissions(permissionNames.toArray(new String[0]), BITTE_LET_ME_PERMISSION);
     }
   }
 
@@ -48,52 +76,62 @@ public class PermissionBitteFragment extends Fragment {
       return;
     }
 
+    List<Permission> permissionList = new ArrayList<>();
+
     for (int i = 0; i < permissions.length; i++) {
-      final String permissionName = permissions[i];
+      final String name = permissions[i];
 
       if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-        updateLiveData(permissionName, PermissionResult.PERMISSION_DENIED);
+        if (shouldShowRequestPermissionRationale(name)) {
+          permissionList.add(new Permission(name, PermissionResult.SHOW_RATIONALE));
+        } else {
+          permissionList.add(new Permission(name, PermissionResult.DENIED));
+        }
+
       } else {
-        updateLiveData(permissionName, PermissionResult.PERMISSION_GRANTED);
+        permissionList.add(new Permission(name, PermissionResult.GRANTED));
       }
     }
 
-    getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
-  }
-
-  private void updateLiveData(String permissionName, PermissionResult permissionResult) {
-    liveData.setValue(new Permission(permissionName, permissionResult));
+    mutableLiveData.setValue(new Permissions(permissionList));
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
   @NonNull
-  static String[] neededPermissions(Context context) {
+  private List<Permission> getPermissionList(Context context) {
     PackageManager packageManager = context.getPackageManager();
     PackageInfo packageInfo = null;
+
     try {
       packageInfo = packageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
-    } catch (PackageManager.NameNotFoundException e) { /* */ }
+    } catch (PackageManager.NameNotFoundException e) { /* ignore */ }
 
-    List<String> needed = new ArrayList<>();
+    List<Permission> permissions = new ArrayList<>();
 
-    if (packageInfo != null
-            && packageInfo.requestedPermissions != null
-            && packageInfo.requestedPermissionsFlags != null) {
+    if (packageInfo == null
+            || packageInfo.requestedPermissions == null
+            || packageInfo.requestedPermissionsFlags == null) {
+      return permissions;
+    }
 
-      for (int i = 0; i < packageInfo.requestedPermissions.length; i++) {
-        int flags = packageInfo.requestedPermissionsFlags[i];
-        String group = null;
+    for (int i = 0; i < packageInfo.requestedPermissions.length; i++) {
+      int flags = packageInfo.requestedPermissionsFlags[i];
+      String group = null;
 
-        try {
-          group = packageManager.getPermissionInfo(packageInfo.requestedPermissions[i], 0).group;
-        } catch (PackageManager.NameNotFoundException e) { /* */ }
+      try {
+        group = packageManager.getPermissionInfo(packageInfo.requestedPermissions[i], 0).group;
+      } catch (PackageManager.NameNotFoundException e) { /* ignore */ }
 
-        if (((flags & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) && group != null) {
-          needed.add(packageInfo.requestedPermissions[i]);
-        }
+      String name = packageInfo.requestedPermissions[i];
+      if (((flags & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) && group != null) {
+        permissions.add(new Permission(name, PermissionResult.DENIED));
+      } else {
+        permissions.add(new Permission(name, PermissionResult.GRANTED));
       }
     }
 
-    return needed.toArray(new String[0]);
+    return permissions;
   }
+
+  // TODO rename library folder to permission-bitte
 }

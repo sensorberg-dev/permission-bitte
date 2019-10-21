@@ -10,39 +10,53 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.sensorberg.permissionbitte.PermissionBitte;
 import com.sensorberg.permissionbitte.Permission;
+import com.sensorberg.permissionbitte.PermissionResult;
+import com.sensorberg.permissionbitte.Permissions;
 
 /**
  * Sample showing PermissionBitte with Android Architecture Components
  */
 public class ArchitectureComponentsActivity extends AppCompatActivity implements Observer<ArchitectureComponentsViewModel.State>, View.OnClickListener {
 
-  private ArchitectureComponentsViewModel vm;
+  private static final String TAG = ArchitectureComponentsActivity.class.getSimpleName();
+
+  private ArchitectureComponentsViewModel viewModel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     findViewById(R.id.button).setOnClickListener(this);
-    vm = ViewModelProviders.of(this).get(ArchitectureComponentsViewModel.class);
-    vm.getState().observe(this, this);
-    vm.shouldAskPermission(PermissionBitte.shouldAsk(this));
+    viewModel = ViewModelProviders.of(this).get(ArchitectureComponentsViewModel.class);
+    viewModel.getState().observe(this, this);
 
-    PermissionBitte.permissionLiveData.observe(this, new Observer<Permission>() {
+    PermissionBitte.permissions(this).observe(this, new Observer<Permissions>() {
       @Override
-      public void onChanged(Permission permission) {
+      public void onChanged(Permissions permissions) {
         // react on the permission state
+        for (Permission permission : permissions.getPermissions(PermissionResult.DENIED, PermissionResult.SHOW_RATIONALE)) {
+          Log.d(TAG, permission.name + " " + permission.result);
+        }
+        Log.d(TAG, "--------------------------------------------------------");
+
+        if (permissions.showRationale()) {
+          showRationaleDialog();
+        }
       }
     });
+
+    PermissionBitte.ask(this);
   }
 
   @Override
   public void onClick(View v) {
-    vm.userAgreesForPermissionAsking();
+    viewModel.userAgreesForPermissionAsking();
   }
 
   @Override
@@ -58,25 +72,6 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
       case ASK_FOR_PERMISSION:
         PermissionBitte.ask(this);
         break;
-      case SHOW_PERMISSION_RATIONALE:
-        new AlertDialog.Builder(this)
-                .setTitle("Bitte")
-                .setMessage("I promise not to be a creep")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    vm.userAgreesForPermissionAsking();
-                  }
-                })
-                .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    vm.userDeclinedRationale();
-                  }
-                })
-                .setCancelable(false)
-                .show();
-        break;
       case ON_PERMISSION_DENIED:
         PermissionBitte.goToSettings(this);
       case ON_PERMISSION_RATIONALE_DECLINED:
@@ -84,5 +79,25 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
         finish();
         break;
     }
+  }
+
+  private void showRationaleDialog() {
+    new AlertDialog.Builder(this)
+            .setTitle("Bitte")
+            .setMessage("I promise not to be a creep")
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                viewModel.userAgreesForPermissionAsking();
+              }
+            })
+            .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                viewModel.userDeclinedRationale();
+              }
+            })
+            .setCancelable(false)
+            .show();
   }
 }
