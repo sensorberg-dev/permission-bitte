@@ -48,7 +48,7 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
         Log.d(TAG, "--------------------------------------------------------");
 
         if (permissions.deniedPermanently()) {
-          List<Permission> deniedPermissionList = permissions.get(PermissionResult.DENIED);
+          List<Permission> deniedPermissionList = permissions.filter(PermissionResult.DENIED);
 
           // check if you really need that permission or if you can live without.
 

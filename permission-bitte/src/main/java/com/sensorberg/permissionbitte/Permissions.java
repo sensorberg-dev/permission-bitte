@@ -13,11 +13,23 @@ public class Permissions {
     this.permissions = permissions;
   }
 
-  public boolean showRationale() {
-    return hasPermissionResult(PermissionResult.SHOW_RATIONALE);
+  /**
+   * Get all permissions.
+   *
+   * @return list of all permissions
+   */
+  @NonNull
+  public List<Permission> getPermissions() {
+    return permissions;
   }
 
-  public List<Permission> get(PermissionResult permissionResult) {
+  /**
+   * Get a filtered list of permissions.
+   *
+   * @param permissionResult Filter parameter
+   * @return list of Permission matching the given parameter
+   */
+  public List<Permission> filter(PermissionResult permissionResult) {
     List<Permission> result = new ArrayList<>();
 
     for (Permission permission : permissions) {
@@ -29,16 +41,25 @@ public class Permissions {
     return result;
   }
 
+  /**
+   * Check if at least one permission has been denied.
+   *
+   * @return true if one permission matches PermissionResult.DENIED, false otherwise
+   */
   public boolean deniedPermanently() {
     return hasPermissionResult(PermissionResult.DENIED);
   }
 
-  private boolean hasPermissionResult(PermissionResult permissionResult) {
-    return !get(permissionResult).isEmpty();
+  /**
+   * Checks if at least one permission needs to show rationale.
+   *
+   * @return true if one permission matches PermissionResult.SHOW_RATIONALE, false otherwise
+   */
+  public boolean showRationale() {
+    return hasPermissionResult(PermissionResult.SHOW_RATIONALE);
   }
 
-  @NonNull
-  public List<Permission> getPermissions() {
-    return permissions;
+  private boolean hasPermissionResult(PermissionResult permissionResult) {
+    return !filter(permissionResult).isEmpty();
   }
 }
