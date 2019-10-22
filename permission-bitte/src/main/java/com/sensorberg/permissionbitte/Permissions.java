@@ -60,6 +60,12 @@ public class Permissions {
   }
 
   private boolean hasPermissionResult(PermissionResult permissionResult) {
-    return !filter(permissionResult).isEmpty();
+    for (Permission permission : permissions) {
+      if (permission.result == permissionResult) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
