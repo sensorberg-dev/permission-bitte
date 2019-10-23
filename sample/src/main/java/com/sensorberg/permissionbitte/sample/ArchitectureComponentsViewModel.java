@@ -41,7 +41,7 @@ public class ArchitectureComponentsViewModel extends ViewModel {
       state.setValue(State.SHOW_RATIONALE);
     } else if (permissions.needAskingForPermission()) {
       state.setValue(State.NEED_ASKING_FOR_PERMISSION);
-    } else {
+    } else if (permissions.allGranted()) {
       state.setValue(State.PERMISSION_GRANTED);
     }
   }

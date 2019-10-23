@@ -68,6 +68,21 @@ public class Permissions {
     return hasPermissionResult(PermissionResult.DENIED_PLEASE_ASK);
   }
 
+  /**
+   * Checks if all permissions have been granted - or no permissions required at all.
+   *
+   * @return true if all permission matches PermissionResult.GRANTED or no permissions at all required
+   */
+  public boolean allGranted() {
+    for (Permission permission : permissions) {
+      if (permission.result != PermissionResult.GRANTED) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   private boolean hasPermissionResult(PermissionResult permissionResult) {
     for (Permission permission : permissions) {
       if (permission.result == permissionResult) {
