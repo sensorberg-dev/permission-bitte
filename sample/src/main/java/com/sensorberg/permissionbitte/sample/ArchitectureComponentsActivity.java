@@ -67,7 +67,7 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
 
       case PERMISSION_DENIED:
         Toast.makeText(ArchitectureComponentsActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
-        //      finish();
+        finish();
         break;
 
       case SHOW_RATIONALE:

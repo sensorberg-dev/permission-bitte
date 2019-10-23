@@ -139,7 +139,7 @@ public class PermissionBitteFragment extends Fragment {
   private void updateData() {
     Map<String, PermissionResult> permissionMap = getPermissions(getActivity());
 
-    // to not loose denied stay during onResume(), permissionMap gets updated with previously DENIED permissions
+    // to not loose denied state during onResume(), permissionMap gets updated with previously DENIED permissions
     Permissions lastKnownPermissions = mutableLiveData.getValue();
     if (lastKnownPermissions != null) {
       Set<String> deniedPermissions = lastKnownPermissions.filter(PermissionResult.DENIED);

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Gives access to all required permissions in manifest and their result.
+ * Reflects required permissions (from manifest) and their result.
  */
 public class Permissions {
 
