@@ -1,15 +1,11 @@
-/*
- * Because bintray is "interesting" that's the URL scheme. Good Luck!
- * https://bintray.com/api/v1/maven/{NEXUS_USERNAME}/maven/{POM_ARTIFACT_ID}/;publish=1
- */
 apply plugin: "com.vanniktech.maven.publish"
 mavenPublish {
     targets {
         uploadArchives {
             signing = false
-            releaseRepositoryUrl = findProperty("BINTRAY_URL", null)
-            repositoryUsername = findProperty("BINTRAY_USERNAME", null)
-            repositoryPassword = findProperty("BINTRAY_PASSWORD", null)
+            releaseRepositoryUrl = findProperty("PERMISSION_BITTE_URL", null)
+            repositoryUsername = findProperty("PERMISSION_BITTE_USERNAME", null)
+            repositoryPassword = findProperty("PERMISSION_BITTE_PASSWORD", null)
         }
     }
 }
