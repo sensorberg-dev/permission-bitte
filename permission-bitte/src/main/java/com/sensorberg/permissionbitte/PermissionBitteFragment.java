@@ -38,6 +38,8 @@ public class PermissionBitteFragment extends Fragment {
       askForPermission = false;
       ask();
     }
+
+    updateData();
   }
 
   LiveData<Permissions> getPermission() {
