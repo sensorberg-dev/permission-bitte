@@ -15,14 +15,18 @@ public class PermissionBitte {
 
   private static final String TAG = "PERMISSION_BITTE";
 
+  /**
+   * Get LiveData of Permissions.
+   *
+   * @param activity an Activity
+   * @return LiveData with Permissions
+   */
   public static LiveData<Permissions> permissions(FragmentActivity activity) {
     return getOrCreate(activity).getPermission();
   }
 
   /**
    * Ask for the permission. Which permission? Anything you register on your manifest that needs it.
-   * It is safe to call this every time without querying `shouldAsk`.
-   * In case you call `ask` without needing any permission, bitteBitte will immediately receive `yesYouCan()`
    *
    * @param activity an Activity
    */
@@ -58,5 +62,4 @@ public class PermissionBitte {
 
     return permissionBitteFragment;
   }
-
 }

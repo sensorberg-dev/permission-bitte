@@ -2,40 +2,43 @@ package com.sensorberg.permissionbitte;
 
 import androidx.annotation.NonNull;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Gives access to all required permissions in manifest and their result.
+ */
 public class Permissions {
 
-  private final Map<String, PermissionResult> permissions;
+  private final Map<String, PermissionResult> map;
 
-  Permissions(Map<String, PermissionResult> permissions) {
-    this.permissions = permissions;
+  Permissions(Map<String, PermissionResult> map) {
+    this.map = map;
   }
 
   /**
    * Get all permissions.
    *
-   * @return map of all permissions
+   * @return Map of all permissions
    */
   @NonNull
   public Map<String, PermissionResult> getPermissions() {
-    return permissions;
+    return map;
   }
 
   /**
    * Get a filtered set of permissions.
    *
-   * @param permissionResult Filter parameter
-   * @return set of Permission matching the given parameter
+   * @param permissionResult filter parameter
+   * @return Set of permission names matching the filter parameter
    */
   public Set<String> filter(PermissionResult permissionResult) {
     Set<String> set = new HashSet<>();
 
-    for (String key : permissions.keySet()) {
-      PermissionResult result = permissions.get(key);
+    for (String key : map.keySet()) {
+      PermissionResult result = map.get(key);
       if (result == permissionResult) {
         set.add(key);
       }
@@ -77,7 +80,7 @@ public class Permissions {
    * @return true if all permission matches PermissionResult.GRANTED or no permissions at all required
    */
   public boolean allGranted() {
-    for (PermissionResult result : permissions.values()) {
+    for (PermissionResult result : map.values()) {
       if (result != PermissionResult.GRANTED) {
         return false;
       }
@@ -87,7 +90,7 @@ public class Permissions {
   }
 
   private boolean hasPermissionResult(PermissionResult permissionResult) {
-    return permissions.containsValue(permissionResult);
+    return map.containsValue(permissionResult);
   }
 
   @Override
@@ -95,11 +98,16 @@ public class Permissions {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Permissions that = (Permissions) o;
-    return Objects.equals(permissions, that.permissions);
+
+    Object a = map;
+    Object b = that.map;
+
+    return (a == b) || (a != null && a.equals(b));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(permissions);
+    return Arrays.hashCode(new Object[]{map});
   }
+
 }

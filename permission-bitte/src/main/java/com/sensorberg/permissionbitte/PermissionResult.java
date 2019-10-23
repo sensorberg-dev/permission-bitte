@@ -1,6 +1,9 @@
 package com.sensorberg.permissionbitte;
 
 
+/**
+ * Result of permission.
+ */
 public enum PermissionResult {
   /**
    * Permission has been granted.
@@ -8,7 +11,7 @@ public enum PermissionResult {
   GRANTED,
 
   /**
-   * Permission has not been granted and need to ask again.
+   * Permission has not been granted and needs to be asked for.
    */
   DENIED_PLEASE_ASK,
 
