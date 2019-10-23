@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.sensorberg.permissionbitte.Permission;
 import com.sensorberg.permissionbitte.PermissionBitte;
 import com.sensorberg.permissionbitte.PermissionResult;
 import com.sensorberg.permissionbitte.Permissions;
