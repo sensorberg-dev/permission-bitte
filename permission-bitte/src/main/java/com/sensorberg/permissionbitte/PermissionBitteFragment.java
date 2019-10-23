@@ -53,7 +53,7 @@ public class PermissionBitteFragment extends Fragment {
 
     List<Permission> allPermissions = getPermissionList(getActivity());
     if (allPermissions.isEmpty()) {
-      // this shouldn't happen, but just to be sure
+      // no permissions to handle
       getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
       return;
     }

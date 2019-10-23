@@ -18,7 +18,7 @@ public enum PermissionResult {
   DENIED,
 
   /**
-   * Permission needs to show a rationale.
+   * Permission requires to show a rationale.
    */
   SHOW_RATIONALE
 }

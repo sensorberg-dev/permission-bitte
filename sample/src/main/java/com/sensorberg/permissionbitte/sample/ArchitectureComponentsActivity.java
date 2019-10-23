@@ -14,15 +14,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.sensorberg.permissionbitte.PermissionBitte;
 import com.sensorberg.permissionbitte.Permission;
-import com.sensorberg.permissionbitte.PermissionResult;
+import com.sensorberg.permissionbitte.PermissionBitte;
 import com.sensorberg.permissionbitte.Permissions;
 
-import java.util.List;
-
 /**
- * Sample showing PermissionBitte with Android Architecture Components
+ * Sample showing PermissionBitte.
  */
 public class ArchitectureComponentsActivity extends AppCompatActivity implements Observer<ArchitectureComponentsViewModel.State>, View.OnClickListener {
 
@@ -41,52 +38,49 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
     PermissionBitte.permissions(this).observe(this, new Observer<Permissions>() {
       @Override
       public void onChanged(Permissions permissions) {
-        // react on the permission state
         for (Permission permission : permissions.getPermissions()) {
           Log.d(TAG, permission.name + " " + permission.result);
         }
         Log.d(TAG, "--------------------------------------------------------");
 
-        if (permissions.deniedPermanently()) {
-          List<Permission> deniedPermissionList = permissions.filter(PermissionResult.DENIED);
-
-          // check if you really need that permission or if you can live without.
-
-          // In case you can not live without that permission
-          Toast.makeText(ArchitectureComponentsActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
-          finish();
-        } else if (permissions.showRationale()) {
-          // show a dialog explaining why you need that permission
-          showRationaleDialog();
-        }
+        viewModel.onPermissionChanged(permissions);
       }
     });
   }
 
   @Override
   public void onClick(View v) {
-    viewModel.userAgreesForPermissionAsking();
+    viewModel.askForPermission();
   }
 
   @Override
   public void onChanged(@Nullable ArchitectureComponentsViewModel.State state) {
     switch (state) {
-      case PERMISSION_GOOD:
-        Toast.makeText(this, "Danke schön", Toast.LENGTH_SHORT).show();
-        findViewById(R.id.button).setVisibility(View.GONE);
-        break;
-      case SHOW_PERMISSION_BUTTON:
+      case NEED_ASKING_FOR_PERMISSION:
         findViewById(R.id.button).setVisibility(View.VISIBLE);
         break;
+
+      case PERMISSION_DENIED:
+        Toast.makeText(ArchitectureComponentsActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
+        finish();
+        break;
+
+      case SHOW_RATIONALE:
+        showRationaleDialog();
+        break;
+
       case ASK_FOR_PERMISSION:
         PermissionBitte.ask(this);
         break;
-      case ON_PERMISSION_DENIED:
-        PermissionBitte.goToSettings(this);
-      case ON_PERMISSION_RATIONALE_DECLINED:
-        Toast.makeText(this, "We really need those permissions", Toast.LENGTH_SHORT).show();
-        finish();
+
+      case PERMISSION_GRANTED:
+        Toast.makeText(this, "Danke schön", Toast.LENGTH_SHORT).show();
+        findViewById(R.id.button).setVisibility(View.GONE);
         break;
+
+      case SOW_SETTINGS:
+        PermissionBitte.goToSettings(this);
+
     }
   }
 
@@ -97,13 +91,13 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
-                viewModel.userAgreesForPermissionAsking();
+                viewModel.askForPermission();
               }
             })
             .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
               @Override
               public void onClick(DialogInterface dialog, int which) {
-                viewModel.userDeclinedRationale();
+                viewModel.rationaleDeclined();
               }
             })
             .setCancelable(false)

@@ -59,6 +59,15 @@ public class Permissions {
     return hasPermissionResult(PermissionResult.SHOW_RATIONALE);
   }
 
+  /**
+   * Checks if at least one permission needs to be asked for.
+   *
+   * @return true if one permission matches PermissionResult.DENIED_PLEASE_ASK, false otherwise
+   */
+  public boolean needAskingForPermission() {
+    return hasPermissionResult(PermissionResult.DENIED_PLEASE_ASK);
+  }
+
   private boolean hasPermissionResult(PermissionResult permissionResult) {
     for (Permission permission : permissions) {
       if (permission.result == permissionResult) {
