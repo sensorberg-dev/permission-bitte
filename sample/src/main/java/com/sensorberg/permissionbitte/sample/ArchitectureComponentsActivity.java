@@ -16,7 +16,10 @@ import android.widget.Toast;
 
 import com.sensorberg.permissionbitte.Permission;
 import com.sensorberg.permissionbitte.PermissionBitte;
+import com.sensorberg.permissionbitte.PermissionResult;
 import com.sensorberg.permissionbitte.Permissions;
+
+import java.util.Map;
 
 /**
  * Sample showing PermissionBitte.
@@ -26,6 +29,7 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
   private static final String TAG = ArchitectureComponentsActivity.class.getSimpleName();
 
   private ArchitectureComponentsViewModel viewModel;
+  private AlertDialog alertDialog = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +42,10 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
     PermissionBitte.permissions(this).observe(this, new Observer<Permissions>() {
       @Override
       public void onChanged(Permissions permissions) {
-        for (Permission permission : permissions.getPermissions()) {
-          Log.d(TAG, permission.name + " " + permission.result);
+        Map<String, PermissionResult> permissionMap = permissions.getPermissions();
+        for (String key : permissionMap.keySet()) {
+
+          Log.d(TAG, key + " " + permissionMap.get(key));
         }
         Log.d(TAG, "--------------------------------------------------------");
 
@@ -62,7 +68,7 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
 
       case PERMISSION_DENIED:
         Toast.makeText(ArchitectureComponentsActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
-        finish();
+        //      finish();
         break;
 
       case SHOW_RATIONALE:
@@ -85,7 +91,12 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
   }
 
   private void showRationaleDialog() {
-    new AlertDialog.Builder(this)
+    if (alertDialog != null) {
+      alertDialog.dismiss();
+      alertDialog = null;
+    }
+
+    alertDialog = new AlertDialog.Builder(this)
             .setTitle("Bitte")
             .setMessage("I promise not to be a creep")
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {

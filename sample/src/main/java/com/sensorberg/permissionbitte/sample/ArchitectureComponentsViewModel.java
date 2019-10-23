@@ -4,11 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.sensorberg.permissionbitte.Permission;
 import com.sensorberg.permissionbitte.PermissionResult;
 import com.sensorberg.permissionbitte.Permissions;
 
-import java.util.List;
+import java.util.Set;
 
 public class ArchitectureComponentsViewModel extends ViewModel {
 
@@ -28,13 +27,13 @@ public class ArchitectureComponentsViewModel extends ViewModel {
 
   void onPermissionChanged(Permissions permissions) {
     if (permissions.deniedPermanently()) {
-      List<Permission> deniedPermissionList = permissions.filter(PermissionResult.DENIED);
+      Set<String> deniedPermissions = permissions.filter(PermissionResult.DENIED);
       // check if you really need that permission or if you can live without.
 
       // In case you can not live without that permission
       state.setValue(State.PERMISSION_DENIED);
     } else if (permissions.showRationale()) {
-      List<Permission> rationalePermissionList = permissions.filter(PermissionResult.SHOW_RATIONALE);
+      Set<String> rationalePermission = permissions.filter(PermissionResult.SHOW_RATIONALE);
       // check if you really need that permission or if you can live without.
 
       // show a dialog explaining why you need that permission

@@ -2,43 +2,46 @@ package com.sensorberg.permissionbitte;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class Permissions {
 
-  private final List<Permission> permissions;
+  private final Map<String, PermissionResult> permissions;
 
-  Permissions(List<Permission> permissions) {
+  Permissions(Map<String, PermissionResult> permissions) {
     this.permissions = permissions;
   }
 
   /**
    * Get all permissions.
    *
-   * @return list of all permissions
+   * @return map of all permissions
    */
   @NonNull
-  public List<Permission> getPermissions() {
+  public Map<String, PermissionResult> getPermissions() {
     return permissions;
   }
 
   /**
-   * Get a filtered list of permissions.
+   * Get a filtered set of permissions.
    *
    * @param permissionResult Filter parameter
-   * @return list of Permission matching the given parameter
+   * @return set of Permission matching the given parameter
    */
-  public List<Permission> filter(PermissionResult permissionResult) {
-    List<Permission> result = new ArrayList<>();
+  public Set<String> filter(PermissionResult permissionResult) {
+    Set<String> set = new HashSet<>();
 
-    for (Permission permission : permissions) {
-      if (permission.result == permissionResult) {
-        result.add(permission);
+    for (String key : permissions.keySet()) {
+      PermissionResult result = permissions.get(key);
+      if (result == permissionResult) {
+        set.add(key);
       }
     }
 
-    return result;
+    return set;
   }
 
   /**
@@ -74,8 +77,8 @@ public class Permissions {
    * @return true if all permission matches PermissionResult.GRANTED or no permissions at all required
    */
   public boolean allGranted() {
-    for (Permission permission : permissions) {
-      if (permission.result != PermissionResult.GRANTED) {
+    for (PermissionResult result : permissions.values()) {
+      if (result != PermissionResult.GRANTED) {
         return false;
       }
     }
@@ -84,12 +87,19 @@ public class Permissions {
   }
 
   private boolean hasPermissionResult(PermissionResult permissionResult) {
-    for (Permission permission : permissions) {
-      if (permission.result == permissionResult) {
-        return true;
-      }
-    }
+    return permissions.containsValue(permissionResult);
+  }
 
-    return false;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Permissions that = (Permissions) o;
+    return Objects.equals(permissions, that.permissions);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(permissions);
   }
 }

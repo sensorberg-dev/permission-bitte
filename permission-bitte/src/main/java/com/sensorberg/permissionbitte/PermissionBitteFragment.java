@@ -10,9 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * DO NOT USE THIS FRAGMENT DIRECTLY!
@@ -43,8 +45,7 @@ public class PermissionBitteFragment extends Fragment {
   }
 
   LiveData<Permissions> getPermission() {
-    updateData();
-    return mutableLiveData;
+    return Transformations.distinctUntilChanged(mutableLiveData);
   }
 
   void ask() {
@@ -53,19 +54,14 @@ public class PermissionBitteFragment extends Fragment {
       return;
     }
 
-    List<Permission> allPermissions = getPermissionList(getActivity());
+    Map<String, PermissionResult> allPermissions = getPermissions(getActivity());
     if (allPermissions.isEmpty()) {
       // no permissions to handle
-      updateData();
       getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
       return;
     }
 
-    List<String> permissionNames = new ArrayList<>();
-
-    for (Permission permission : allPermissions) {
-      permissionNames.add(permission.name);
-    }
+    Set<String> permissionNames = allPermissions.keySet();
 
     if (!permissionNames.isEmpty()) {
       requestPermissions(permissionNames.toArray(new String[0]), BITTE_LET_ME_PERMISSION);
@@ -80,29 +76,29 @@ public class PermissionBitteFragment extends Fragment {
       return;
     }
 
-    List<Permission> permissionList = new ArrayList<>();
+    Map<String, PermissionResult> permissionMap = new HashMap<>();
 
     for (int i = 0; i < permissions.length; i++) {
       final String name = permissions[i];
 
       if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
         if (shouldShowRequestPermissionRationale(name)) {
-          permissionList.add(new Permission(name, PermissionResult.SHOW_RATIONALE));
+          permissionMap.put(name, PermissionResult.SHOW_RATIONALE);
         } else {
-          permissionList.add(new Permission(name, PermissionResult.DENIED));
+          permissionMap.put(name, PermissionResult.DENIED);
         }
 
       } else {
-        permissionList.add(new Permission(name, PermissionResult.GRANTED));
+        permissionMap.put(name, PermissionResult.GRANTED);
       }
     }
 
-    mutableLiveData.setValue(new Permissions(permissionList));
+    mutableLiveData.setValue(new Permissions(permissionMap));
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
   @NonNull
-  private List<Permission> getPermissionList(Context context) {
+  private Map<String, PermissionResult> getPermissions(Context context) {
     PackageManager packageManager = context.getPackageManager();
     PackageInfo packageInfo = null;
 
@@ -110,8 +106,7 @@ public class PermissionBitteFragment extends Fragment {
       packageInfo = packageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
     } catch (PackageManager.NameNotFoundException e) { /* ignore */ }
 
-    List<Permission> permissions = new ArrayList<>();
-
+    Map<String, PermissionResult> permissions = new HashMap<>();
     if (packageInfo == null
             || packageInfo.requestedPermissions == null
             || packageInfo.requestedPermissionsFlags == null) {
@@ -129,12 +124,12 @@ public class PermissionBitteFragment extends Fragment {
       String name = packageInfo.requestedPermissions[i];
       if (((flags & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) && group != null) {
         if (shouldShowRequestPermissionRationale(name)) {
-          permissions.add(new Permission(name, PermissionResult.SHOW_RATIONALE));
+          permissions.put(name, PermissionResult.SHOW_RATIONALE);
         } else {
-          permissions.add(new Permission(name, PermissionResult.DENIED_PLEASE_ASK));
+          permissions.put(name, PermissionResult.DENIED_PLEASE_ASK);
         }
       } else {
-        permissions.add(new Permission(name, PermissionResult.GRANTED));
+        permissions.put(name, PermissionResult.GRANTED);
       }
     }
 
@@ -142,7 +137,17 @@ public class PermissionBitteFragment extends Fragment {
   }
 
   private void updateData() {
-    List<Permission> permissionList = getPermissionList(getActivity());
-    mutableLiveData.setValue(new Permissions(permissionList));
+    Map<String, PermissionResult> permissionMap = getPermissions(getActivity());
+
+    // to not loose denied stay during onResume(), permissionMap gets updated with previously DENIED permissions
+    Permissions lastKnownPermissions = mutableLiveData.getValue();
+    if (lastKnownPermissions != null) {
+      Set<String> deniedPermissions = lastKnownPermissions.filter(PermissionResult.DENIED);
+      for (String deniedPermission : deniedPermissions) {
+        permissionMap.put(deniedPermission, PermissionResult.DENIED);
+      }
+    }
+
+    mutableLiveData.setValue(new Permissions(permissionMap));
   }
 }
