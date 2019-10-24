@@ -25,6 +25,7 @@ public class PermissionBitteFragment extends Fragment {
   private static final int BITTE_LET_ME_PERMISSION = 23;
 
   private final MutableLiveData<Permissions> mutableLiveData = new MutableLiveData<>();
+  final LiveData<Permissions> permissionLiveData = Transformations.distinctUntilChanged(mutableLiveData);
 
   private boolean askForPermission = false;
 
@@ -42,10 +43,6 @@ public class PermissionBitteFragment extends Fragment {
     }
 
     updateData();
-  }
-
-  LiveData<Permissions> getPermission() {
-    return Transformations.distinctUntilChanged(mutableLiveData);
   }
 
   void ask() {

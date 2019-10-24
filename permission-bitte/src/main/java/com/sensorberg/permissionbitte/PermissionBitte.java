@@ -22,7 +22,7 @@ public class PermissionBitte {
    * @return LiveData with Permissions
    */
   public static LiveData<Permissions> permissions(FragmentActivity activity) {
-    return getOrCreate(activity).getPermission();
+    return getOrCreate(activity).permissionLiveData;
   }
 
   /**
