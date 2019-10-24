@@ -16,20 +16,16 @@ import android.widget.Toast;
 
 import com.sensorberg.permissionbitte.Permission;
 import com.sensorberg.permissionbitte.PermissionBitte;
-import com.sensorberg.permissionbitte.PermissionResult;
 import com.sensorberg.permissionbitte.Permissions;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Sample showing PermissionBitte.
  */
-public class ArchitectureComponentsActivity extends AppCompatActivity implements Observer<ArchitectureComponentsViewModel.State>, View.OnClickListener {
+public class SampleActivity extends AppCompatActivity implements Observer<SampleViewModel.State>, View.OnClickListener {
 
-  private static final String TAG = ArchitectureComponentsActivity.class.getSimpleName();
+  private static final String TAG = SampleActivity.class.getSimpleName();
 
-  private ArchitectureComponentsViewModel viewModel;
+  private SampleViewModel viewModel;
   private AlertDialog alertDialog = null;
 
   @Override
@@ -37,7 +33,7 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     findViewById(R.id.button).setOnClickListener(this);
-    viewModel = ViewModelProviders.of(this).get(ArchitectureComponentsViewModel.class);
+    viewModel = ViewModelProviders.of(this).get(SampleViewModel.class);
     viewModel.getState().observe(this, this);
 
     PermissionBitte.permissions(this).observe(this, new Observer<Permissions>() {
@@ -59,14 +55,14 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
   }
 
   @Override
-  public void onChanged(@Nullable ArchitectureComponentsViewModel.State state) {
+  public void onChanged(@Nullable SampleViewModel.State state) {
     switch (state) {
       case NEED_ASKING_FOR_PERMISSION:
         findViewById(R.id.button).setVisibility(View.VISIBLE);
         break;
 
       case PERMISSION_DENIED:
-        Toast.makeText(ArchitectureComponentsActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
+        Toast.makeText(SampleActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
         finish();
         break;
 

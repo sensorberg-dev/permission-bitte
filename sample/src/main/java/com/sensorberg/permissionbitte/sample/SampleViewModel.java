@@ -10,7 +10,7 @@ import com.sensorberg.permissionbitte.Permissions;
 
 import java.util.Set;
 
-public class ArchitectureComponentsViewModel extends ViewModel {
+public class SampleViewModel extends ViewModel {
 
   private final MutableLiveData<State> state = new MutableLiveData<>();
 
