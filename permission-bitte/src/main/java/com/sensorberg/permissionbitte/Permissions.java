@@ -21,7 +21,7 @@ public class Permissions {
   /**
    * Get all permissions.
    *
-   * @return Map of all permissions
+   * @return Set of all permissions
    */
   @NonNull
   public Set<Permission> getPermissionSet() {
@@ -75,10 +75,10 @@ public class Permissions {
   /**
    * Checks if at least one permission needs to be asked for.
    *
-   * @return true if one permission matches PermissionResult.DENIED_PLEASE_ASK, false otherwise
+   * @return true if one permission matches PermissionResult.REQUEST_PERMISSION, false otherwise
    */
   public boolean needAskingForPermission() {
-    return hasPermissionResult(PermissionResult.DENIED_PLEASE_ASK);
+    return hasPermissionResult(PermissionResult.REQUEST_PERMISSION);
   }
 
   /**

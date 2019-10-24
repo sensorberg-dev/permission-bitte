@@ -126,7 +126,7 @@ public class PermissionBitteFragment extends Fragment {
         if (shouldShowRequestPermissionRationale(name)) {
           permissions.put(name, PermissionResult.SHOW_RATIONALE);
         } else {
-          permissions.put(name, PermissionResult.DENIED_PLEASE_ASK);
+          permissions.put(name, PermissionResult.REQUEST_PERMISSION);
         }
       } else {
         permissions.put(name, PermissionResult.GRANTED);
