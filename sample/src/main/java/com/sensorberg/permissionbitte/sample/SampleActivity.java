@@ -61,11 +61,6 @@ public class SampleActivity extends AppCompatActivity implements Observer<Sample
         findViewById(R.id.button).setVisibility(View.VISIBLE);
         break;
 
-      case PERMISSION_DENIED:
-        Toast.makeText(SampleActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
-        finish();
-        break;
-
       case SHOW_RATIONALE:
         showRationaleDialog();
         break;
@@ -79,7 +74,8 @@ public class SampleActivity extends AppCompatActivity implements Observer<Sample
         findViewById(R.id.button).setVisibility(View.GONE);
         break;
 
-      case SOW_SETTINGS:
+      case SHOW_SETTINGS:
+        Toast.makeText(SampleActivity.this, "We really need those permissions", Toast.LENGTH_SHORT).show();
         PermissionBitte.goToSettings(this);
 
     }

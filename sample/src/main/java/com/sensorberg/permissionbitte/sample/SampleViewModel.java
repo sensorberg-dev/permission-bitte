@@ -23,7 +23,7 @@ public class SampleViewModel extends ViewModel {
   }
 
   void rationaleDeclined() {
-    state.setValue(State.SOW_SETTINGS);
+    state.setValue(State.SHOW_SETTINGS);
   }
 
   void onPermissionChanged(Permissions permissions) {
@@ -32,9 +32,9 @@ public class SampleViewModel extends ViewModel {
       // check if you really need that permission or if you can live without.
 
       // In case you can not live without that permission
-      state.setValue(State.PERMISSION_DENIED);
+      state.setValue(State.SHOW_SETTINGS);
     } else if (permissions.showRationale()) {
-      Set<Permission> rationalePermission = permissions.filter(PermissionResult.SHOW_RATIONALE);
+      Set<Permission> rationalePermissions = permissions.filter(PermissionResult.SHOW_RATIONALE);
       // check if you really need that permission or if you can live without.
 
       // show a dialog explaining why you need that permission
@@ -48,10 +48,9 @@ public class SampleViewModel extends ViewModel {
 
   enum State {
     PERMISSION_GRANTED,
-    PERMISSION_DENIED,
     ASK_FOR_PERMISSION,
     NEED_ASKING_FOR_PERMISSION,
     SHOW_RATIONALE,
-    SOW_SETTINGS,
+    SHOW_SETTINGS,
   }
 }
