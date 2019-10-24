@@ -14,11 +14,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.sensorberg.permissionbitte.Permission;
 import com.sensorberg.permissionbitte.PermissionBitte;
 import com.sensorberg.permissionbitte.PermissionResult;
 import com.sensorberg.permissionbitte.Permissions;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Sample showing PermissionBitte.
@@ -41,10 +43,8 @@ public class ArchitectureComponentsActivity extends AppCompatActivity implements
     PermissionBitte.permissions(this).observe(this, new Observer<Permissions>() {
       @Override
       public void onChanged(Permissions permissions) {
-        Map<String, PermissionResult> permissionMap = permissions.getPermissions();
-        for (String key : permissionMap.keySet()) {
-
-          Log.d(TAG, key + " " + permissionMap.get(key));
+        for (Permission permission : permissions.getPermissionSet()) {
+          Log.d(TAG, permission.getName() + " " + permission.getResult());
         }
         Log.d(TAG, "--------------------------------------------------------");
 

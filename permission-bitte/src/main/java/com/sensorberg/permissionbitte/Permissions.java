@@ -24,8 +24,14 @@ public class Permissions {
    * @return Map of all permissions
    */
   @NonNull
-  public Map<String, PermissionResult> getPermissions() {
-    return map;
+  public Set<Permission> getPermissionSet() {
+    Set<Permission> set = new HashSet<>();
+
+    for (String key : map.keySet()) {
+      set.add(new Permission(key, map.get(key)));
+    }
+
+    return set;
   }
 
   /**
@@ -34,13 +40,14 @@ public class Permissions {
    * @param permissionResult filter parameter
    * @return Set of permission names matching the filter parameter
    */
-  public Set<String> filter(PermissionResult permissionResult) {
-    Set<String> set = new HashSet<>();
+  @NonNull
+  public Set<Permission> filter(PermissionResult permissionResult) {
+    Set<Permission> set = new HashSet<>();
 
     for (String key : map.keySet()) {
       PermissionResult result = map.get(key);
       if (result == permissionResult) {
-        set.add(key);
+        set.add(new Permission(key, map.get(key)));
       }
     }
 
