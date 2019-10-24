@@ -144,7 +144,10 @@ public class PermissionBitteFragment extends Fragment {
     if (lastKnownPermissions != null) {
       Set<String> deniedPermissions = lastKnownPermissions.filter(PermissionResult.DENIED);
       for (String deniedPermission : deniedPermissions) {
-        permissionMap.put(deniedPermission, PermissionResult.DENIED);
+        PermissionResult permissionResult = permissionMap.get(deniedPermission);
+        if (permissionResult != null && permissionResult != PermissionResult.GRANTED) {
+          permissionMap.put(deniedPermission, PermissionResult.DENIED);
+        }
       }
     }
 
