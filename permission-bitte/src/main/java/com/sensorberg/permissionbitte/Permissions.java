@@ -1,6 +1,7 @@
 package com.sensorberg.permissionbitte;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,7 +16,7 @@ public class Permissions {
   private final Map<String, PermissionResult> map;
 
   Permissions(Map<String, PermissionResult> map) {
-    this.map = map;
+    this.map = Preconditions.checkNotNull(map);
   }
 
   /**
@@ -105,16 +106,11 @@ public class Permissions {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Permissions that = (Permissions) o;
-
-    Object a = map;
-    Object b = that.map;
-
-    return (a == b) || (a != null && a.equals(b));
+    return map.equals(that.map);
   }
 
   @Override
   public int hashCode() {
     return Arrays.hashCode(new Object[]{map});
   }
-
 }
