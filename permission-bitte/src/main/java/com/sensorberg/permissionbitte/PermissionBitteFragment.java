@@ -119,14 +119,16 @@ public class PermissionBitteFragment extends Fragment {
       } catch (PackageManager.NameNotFoundException e) { /* ignore */ }
 
       String name = packageInfo.requestedPermissions[i];
-      if (((flags & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) && group != null) {
-        if (shouldShowRequestPermissionRationale(name)) {
-          permissions.put(name, PermissionResult.SHOW_RATIONALE);
+      if (group != null) {
+        if ((flags & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) {
+          if (shouldShowRequestPermissionRationale(name)) {
+            permissions.put(name, PermissionResult.SHOW_RATIONALE);
+          } else {
+            permissions.put(name, PermissionResult.REQUEST_PERMISSION);
+          }
         } else {
-          permissions.put(name, PermissionResult.REQUEST_PERMISSION);
+          permissions.put(name, PermissionResult.GRANTED);
         }
-      } else {
-        permissions.put(name, PermissionResult.GRANTED);
       }
     }
 
