@@ -1,20 +1,25 @@
 package com.sensorberg.permissionbitte;
 
+import androidx.annotation.NonNull;
+import androidx.core.util.Preconditions;
+
 import java.util.Arrays;
 
 public class Permission {
   private final String name;
   private final PermissionResult result;
 
-  public Permission(String name, PermissionResult result) {
-    this.name = name;
-    this.result = result;
+  Permission(String name, PermissionResult result) {
+    this.name = Preconditions.checkNotNull(name);
+    this.result = Preconditions.checkNotNull(result);
   }
 
+  @NonNull
   public String getName() {
     return name;
   }
 
+  @NonNull
   public PermissionResult getResult() {
     return result;
   }
