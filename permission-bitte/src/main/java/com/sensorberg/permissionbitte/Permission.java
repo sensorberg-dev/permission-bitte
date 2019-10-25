@@ -29,11 +29,7 @@ public class Permission {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Permission that = (Permission) o;
-
-    Object a = name;
-    Object b = that.name;
-
-    return (a == b) || (a != null && a.equals(b));
+    return name.equals(that.name) && result == that.result;
   }
 
   @Override
