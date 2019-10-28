@@ -9,7 +9,9 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
 import java.util.HashMap;
@@ -24,13 +26,23 @@ public class PermissionBitteFragment extends Fragment {
 
   private static final int BITTE_LET_ME_PERMISSION = 23;
 
+  // for updates (not forced by the user but the android system)
   private final MutableLiveData<Permissions> mutableLiveData = new MutableLiveData<>();
-  final LiveData<Permissions> permissionLiveData = Transformations.distinctUntilChanged(mutableLiveData);
+  private final LiveData<Permissions> distinctLiveData = Transformations.distinctUntilChanged(mutableLiveData);
+
+  final MediatorLiveData<Permissions> permissionLiveData = new MediatorLiveData<>();
 
   private boolean askForPermission = false;
 
   public PermissionBitteFragment() {
     setRetainInstance(true);
+
+    permissionLiveData.addSource(distinctLiveData, new Observer<Permissions>() {
+      @Override
+      public void onChanged(Permissions permissions) {
+        permissionLiveData.setValue(permissions);
+      }
+    });
   }
 
   @Override
@@ -40,9 +52,10 @@ public class PermissionBitteFragment extends Fragment {
     if (askForPermission) {
       askForPermission = false;
       ask();
+    } else {
+      updateData();
     }
 
-    updateData();
   }
 
   void ask() {
@@ -90,7 +103,19 @@ public class PermissionBitteFragment extends Fragment {
       }
     }
 
-    mutableLiveData.setValue(new Permissions(permissionMap));
+    Permissions permissionsAsked = new Permissions(permissionMap);
+
+
+    // to avoid bypassing the distinct from updateData() we need to send the permissions from the asked() method
+    // to through the distinct livedata if they are not the same
+    if (!permissionsAsked.equals(distinctLiveData.getValue())) {
+      // when the permissions are not the same as in the distinct livedata
+      // then update the liveData that will go through distinct.
+      mutableLiveData.setValue(permissionsAsked);
+    } else {
+      // if the permissions are the same as in the distinct livedata then just update the mediator
+      permissionLiveData.setValue(permissionsAsked);
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

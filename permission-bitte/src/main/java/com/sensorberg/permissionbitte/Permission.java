@@ -37,4 +37,11 @@ public class Permission {
     return Arrays.hashCode(new Object[]{name, result});
   }
 
+  @Override
+  public String toString() {
+    return "Permission{" +
+            "name='" + name + '\'' +
+            ", result=" + result +
+            '}';
+  }
 }
