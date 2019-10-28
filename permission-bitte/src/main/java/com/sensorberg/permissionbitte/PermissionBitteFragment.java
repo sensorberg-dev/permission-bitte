@@ -9,10 +9,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.Transformations;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,23 +23,13 @@ public class PermissionBitteFragment extends Fragment {
 
   private static final int BITTE_LET_ME_PERMISSION = 23;
 
-  // for updates (not forced by the user but the android system)
   private final MutableLiveData<Permissions> mutableLiveData = new MutableLiveData<>();
-  private final LiveData<Permissions> distinctLiveData = Transformations.distinctUntilChanged(mutableLiveData);
-
-  final MediatorLiveData<Permissions> permissionLiveData = new MediatorLiveData<>();
+  final LiveData<Permissions> permissionLiveData = mutableLiveData;
 
   private boolean askForPermission = false;
 
   public PermissionBitteFragment() {
     setRetainInstance(true);
-
-    permissionLiveData.addSource(distinctLiveData, new Observer<Permissions>() {
-      @Override
-      public void onChanged(Permissions permissions) {
-        permissionLiveData.setValue(permissions);
-      }
-    });
   }
 
   @Override
@@ -53,7 +40,7 @@ public class PermissionBitteFragment extends Fragment {
       askForPermission = false;
       ask();
     } else {
-      updateData();
+      updatePermissions();
     }
 
   }
@@ -103,19 +90,7 @@ public class PermissionBitteFragment extends Fragment {
       }
     }
 
-    Permissions permissionsAsked = new Permissions(permissionMap);
-
-
-    // to avoid bypassing the distinct from updateData() we need to send the permissions from the asked() method
-    // to through the distinct livedata if they are not the same
-    if (!permissionsAsked.equals(distinctLiveData.getValue())) {
-      // when the permissions are not the same as in the distinct livedata
-      // then update the liveData that will go through distinct.
-      mutableLiveData.setValue(permissionsAsked);
-    } else {
-      // if the permissions are the same as in the distinct livedata then just update the mediator
-      permissionLiveData.setValue(permissionsAsked);
-    }
+    setPermissions(new Permissions(permissionMap), true);
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -160,7 +135,7 @@ public class PermissionBitteFragment extends Fragment {
     return permissions;
   }
 
-  private void updateData() {
+  private void updatePermissions() {
     Map<String, PermissionResult> permissionMap = getPermissions(getActivity());
 
     // to not loose denied state during onResume(), permissionMap gets updated with previously DENIED permissions
@@ -179,6 +154,16 @@ public class PermissionBitteFragment extends Fragment {
       }
     }
 
-    mutableLiveData.setValue(new Permissions(permissionMap));
+    setPermissions(new Permissions(permissionMap), false);
+  }
+
+  private void setPermissions(Permissions permissions, boolean forceUpdate) {
+    if (forceUpdate) {
+      mutableLiveData.setValue(permissions);
+    } else {
+      if (!permissions.equals(mutableLiveData.getValue())) {
+        mutableLiveData.setValue(permissions);
+      }
+    }
   }
 }
