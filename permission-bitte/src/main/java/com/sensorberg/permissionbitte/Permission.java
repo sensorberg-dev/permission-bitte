@@ -1,12 +1,19 @@
 package com.sensorberg.permissionbitte;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
 
-public class Permission {
+public class Permission implements Parcelable {
+
+  @NonNull
   private final String name;
+
+  @NonNull
   private final PermissionResult result;
 
   Permission(String name, PermissionResult result) {
@@ -44,4 +51,32 @@ public class Permission {
             ", result=" + result +
             '}';
   }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(this.name);
+    dest.writeInt(this.result.ordinal());
+  }
+
+  protected Permission(Parcel in) {
+    this.name = Preconditions.checkNotNull(in.readString());
+    this.result = PermissionResult.values()[in.readInt()];
+  }
+
+  public static final Parcelable.Creator<Permission> CREATOR = new Parcelable.Creator<Permission>() {
+    @Override
+    public Permission createFromParcel(Parcel source) {
+      return new Permission(source);
+    }
+
+    @Override
+    public Permission[] newArray(int size) {
+      return new Permission[size];
+    }
+  };
 }
